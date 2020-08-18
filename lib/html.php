@@ -2567,54 +2567,40 @@ function html_common_header($title, $selectedTheme = '') {
 }
 
 function html_auth_header($section, $browser_title, $legend, $title, $hook_args = array()) {
-	global $themes;
-?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-	<!-- <?php print "${section}_title"; ?> -->
-	<?php html_common_header(api_plugin_hook_function("${section}_title", $browser_title));?>
-</head>
-<body>
-<div class='cactiAuthBody'>
-	<div class='cactiAuthCenter'>
-		<div class='cactiAuthArea'>
-			<legend><?php print $legend;?></legend><hr />
-			<form name='auth' method='post' action='<?php print get_current_page();?>'>
-				<input type='hidden' name='action' value='<?php print $section; ?>'>
-				<?php api_plugin_hook_function("${section}_before", $hook_args);	?>
-				<div class='cactiAuthTitle'>
-					<table class='cactiAuthTable'>
-						<tr><td><?php print $title; ?></td></tr>
-					</table>
-				</div>
-				<div class='cactiAuth'>
-					<table class='cactiAuthTable'>
-<?php
+	global $themes, $twig, $twigarr;
+
+	ob_start();
+	api_plugin_hook_function("${section}_title", $browser_title);
+	$hook_section_title = ob_get_contents();
+	ob_end_clean();
+
+	ob_start();
+	api_plugin_hook_function("${section}_before", $hook_args);
+	$hook_section_before = ob_get_contents();
+	ob_end_clean();
+
+	echo $twig->render('html_auth_header.html', array_merge($twigarr, 
+		array( 'themes' => $themes, 'section' => $section, 'browser_title' => $browser_title, 'legend' => $legend, 'title' => $title,
+			'hook_section_title' => $hook_section_title, 'hook_section_before' => $hook_section_before)));
+
 }
 
 function html_auth_footer($section, $error = '', $html = '') {
-?>
-					</table>
-				</div>
-				<?php api_plugin_hook("${section}_after"); ?>
-			</form>
-			<hr />
-			<div class='cactiAuthErrors'>
-				<?php print $error; ?>
-			</div>
-			<div class='versionInfo'>
-				<?php print __('Version %1$s | %2$s', CACTI_VERSION_BRIEF, COPYRIGHT_YEARS_SHORT);?>
-			</div>
-		</div>
-	</div>
-	<div class='cactiAuthLogo'></div>
-<?php
-	print $html;
+	global $twig, $twigarr;
+
+	ob_start();
+	api_plugin_hook("${section}_after");
+	$hook_section_after = ob_get_contents();
+	ob_end_clean();
+	$version = __('Version %1$s | %2$s', CACTI_VERSION_BRIEF, COPYRIGHT_YEARS_SHORT);
+
+	ob_start();
 	include_once(dirname(__FILE__) . '/../include/global_session.php');
-?>
-</div>
-</body>
-</html>
-<?php
+	$global_session = ob_get_contents();
+	ob_end_clean();
+
+	echo $twig->render('html_auth_footer.html', array_merge($twigarr, 
+		array( 'section' => $section, 'error' => $error, 'html' => $html, 'hook_section_after' => $hook_section_after, 'version' => $version,
+			'global_session' => $global_session)));
+
 }
