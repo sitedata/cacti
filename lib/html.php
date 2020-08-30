@@ -2425,6 +2425,10 @@ function html_common_header($title, $selectedTheme = '') {
 	<meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
 	<script type='text/javascript'>
 		var theme='<?php print $selectedTheme;?>';
+		var hScroll=<?php print read_user_setting('enable_hscroll', '') == 'on' ? 'true':'false';?>;
+		var userSettings=<?php print is_view_allowed('graph_settings') ? 'true':'false';?>;
+		var tableConstraintsOn='<?php print __('Limit table columns to view port hiding columns that do not fit.');?>';
+		var tableConstraintsOff='<?php print __('Allow all table columns to be shown for very large scrolling tables.');?>';
 		var searchFilter='<?php print __esc('Enter a search term');?>';
 		var searchRFilter='<?php print __esc('Enter a regular expression');?>';
 		var noFileSelected='<?php print __esc('No file selected');?>';
@@ -2518,7 +2522,6 @@ function html_common_header($title, $selectedTheme = '') {
 	print get_md5_include_css('include/themes/' . $selectedTheme .'/c3.css');
 	print get_md5_include_css('include/themes/' . $selectedTheme .'/pace.css');
 	print get_md5_include_css('include/fa/css/all.css');
-	print get_md5_include_css('include/fa/css/fontawesome.css');
 	print get_md5_include_css('include/vendor/flag-icon-css/css/flag-icon.css');
 	print get_md5_include_css('include/themes/' . $selectedTheme .'/main.css');
 	print get_md5_include_js('include/js/screenfull.js', true);
@@ -2579,7 +2582,7 @@ function html_auth_header($section, $browser_title, $legend, $title, $hook_args 
 	$hook_section_before = ob_get_contents();
 	ob_end_clean();
 
-	echo $twig->render('html_auth_header.html', array_merge($twigarr, 
+	echo $twig->render('html_auth_header.html', array_merge($twigarr,
 		array( 'themes' => $themes, 'section' => $section, 'browser_title' => $browser_title, 'legend' => $legend, 'title' => $title,
 			'hook_section_title' => $hook_section_title, 'hook_section_before' => $hook_section_before)));
 
@@ -2599,7 +2602,7 @@ function html_auth_footer($section, $error = '', $html = '') {
 	$global_session = ob_get_contents();
 	ob_end_clean();
 
-	echo $twig->render('html_auth_footer.html', array_merge($twigarr, 
+	echo $twig->render('html_auth_footer.html', array_merge($twigarr,
 		array( 'section' => $section, 'error' => $error, 'html' => $html, 'hook_section_after' => $hook_section_after, 'version' => $version,
 			'global_session' => $global_session)));
 
